@@ -33,7 +33,8 @@ async function getBrowserInstance() {
 			'--no-default-browser-check',
 			'--disable-web-security',
 			'--disable-features=IsolateOrigins,site-per-process',
-			'--remote-allow-origins=*'
+			'--remote-allow-origins=*',
+			'--window-size=1400,900'
 		]
 	});
 }
@@ -79,6 +80,7 @@ async function main(encodedPhpFromParent = null) {
 	if (!targetPage) {
 		console.log('[ℹ] Target page not found, creating new page...');
 		targetPage = await browser.newPage();
+		await targetPage.setViewport(null); // Responsive viewport
 		await targetPage.goto('https://secure.cliendo.com/d8v3/inrichting/details/', {
 			waitUntil: 'networkidle0'
 		});
@@ -90,22 +92,26 @@ async function main(encodedPhpFromParent = null) {
 	console.log("[↩] Looking for tab containing 'input'...");
 	await targetPage.waitForFunction(`
 		Array.from(document.querySelectorAll('div.tab2 > span'))
-			.some(s => s.innerText.toLowerCase().includes('input'))
+			.some(function(s) { return s.innerText.toLowerCase().includes('input'); })
 	`);
 
 	await targetPage.evaluate(`
-		Array.from(document.querySelectorAll('div.tab2 > span'))
-			.find(s => s.innerText.toLowerCase().includes('input'))
-			?.click()
+		const span = Array.from(document.querySelectorAll('div.tab2 > span'))
+			.find(function(s) { return s.innerText.toLowerCase().includes('input'); });
+		if (span) span.click();
 	`);
 	console.log("[✓] Switched to 'input' tab");
 
 	const selector = 'div.field.textarea2.tabTestDev div.right textarea.multiLine.twAs';
 	await targetPage.waitForSelector(selector);
-	const textareaHandle = await targetPage.$(selector);
-	await textareaHandle.click();
+	await targetPage.click(selector);
 
-	const existingValue = await targetPage.evaluate(el => el.value, textareaHandle);
+	const existingValue = await targetPage.evaluate(`
+		(function() {
+			const textarea = document.querySelector('` + selector + `');
+			return textarea ? textarea.value : '';
+		})()
+	`);
 	if (existingValue.trim().length > 0) {
 		console.log(`[🧹] Clearing existing content (${existingValue.length} characters)...`);
 
@@ -129,25 +135,32 @@ async function main(encodedPhpFromParent = null) {
 	await targetPage.mouse.click(10, 10);
 	console.log('[✓] Clicked outside to trigger UI update');
 
-	await targetPage.waitForFunction(
-		'(tabName) => Array.from(document.querySelectorAll("div.tab2 > span")).some(s => s.innerText.includes(tabName))',
-		{},
-		expectedTabName
-	);
+	await targetPage.waitForFunction(`
+		(function(tabName) {
+			return Array.from(document.querySelectorAll("div.tab2 > span"))
+				.some(function(s) { return s.innerText.includes(tabName); });
+		})('` + expectedTabName + `')
+	`);
 	console.log(`[✓] Tab "${expectedTabName}" created`);
 
-	await targetPage.evaluate(
-		'(tabName) => { const span = Array.from(document.querySelectorAll("div.tab2 > span")).find(s => s.innerText.includes(tabName)); if (span) span.click(); }',
-		expectedTabName
-	);
+	await targetPage.evaluate(`
+		(function() {
+			const span = Array.from(document.querySelectorAll("div.tab2 > span"))
+				.find(function(s) { return s.innerText.includes('` + expectedTabName + `'); });
+			if (span) span.click();
+		})()
+	`);
 
 	console.log(`[🕒] Waiting briefly and retrying click on tab: ${expectedTabName}`);
 	await new Promise(resolve => setTimeout(resolve, 300));
 
-	await targetPage.evaluate(
-		'(tabName) => { const span = Array.from(document.querySelectorAll("div.tab2 > span")).find(s => s.innerText.includes(tabName)); if (span) span.click(); }',
-		expectedTabName
-	);
+	await targetPage.evaluate(`
+		(function() {
+			const span = Array.from(document.querySelectorAll("div.tab2 > span"))
+				.find(function(s) { return s.innerText.includes('` + expectedTabName + `'); });
+			if (span) span.click();
+		})()
+	`);
 
 	console.log(`[✓] Re-clicked tab: ${expectedTabName}`);
 }

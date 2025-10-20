@@ -45,15 +45,35 @@ This project automates the process of creating PHP layout configuration files fo
 
 ## Building Portable Executable
 
-To create a portable executable that includes the bundled Chromium browser:
+⚠️ **Important**: Executables are platform-specific. A Windows .exe will NOT work on macOS or Linux.
 
-```bash
-npm run build
-```
+### Build with Bundled Chrome
 
-This creates `CliendoIOM.exe` which can run on any Windows machine without requiring Chrome installation.
+1. Prepare the build environment:
+   ```bash
+   npm run prebuild
+   ```
 
-For detailed build instructions, see [BUILD.md](BUILD.md).
+2. Build platform-specific executable:
+   ```bash
+   # Windows (run on Windows)
+   npm run build-win
+   
+   # macOS (run on macOS) 
+   npm run build-mac
+   
+   # Linux (run on Linux)
+   npm run build-linux
+   
+   # All platforms (requires appropriate OS)
+   npm run build-all
+   ```
+
+The executables include Chrome/Chromium and can run on machines without Node.js or Chrome installed.
+
+**File sizes**: ~150-200MB each (includes Chrome browser)
+
+For detailed build instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Usage
 

@@ -1,11 +1,60 @@
-require('dotenv').config();
+// Load environment variables with proper path handling for packaged executables
+const path = require('path');
+const fs = require('fs');
+
+function loadEnvironment() {
+  const isPackaged = process.pkg !== undefined;
+  let envPath;
+  
+  if (isPackaged) {
+    // When packaged, look for .env next to the executable
+    envPath = path.join(path.dirname(process.execPath), '.env');
+  } else {
+    // When running in development, use default path
+    envPath = path.join(__dirname, '.env');
+  }
+  
+  console.log(`[🔧] Looking for .env file at: ${envPath}`);
+  
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    console.log(`[✅] Loaded .env from: ${envPath}`);
+  } else {
+    console.log(`[⚠️] .env file not found at: ${envPath}`);
+    console.log(`[💡] You can also set OPENAI_API_KEY as a system environment variable`);
+  }
+}
+
+loadEnvironment();
+
 const readline = require('readline');
 const { exec } = require('child_process');
 const { OpenAI } = require('openai');
-const fs = require('fs');
-const path = require('path');
+// ...existing code... (removed fs and path imports since they're already above)
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Validate and initialize OpenAI
+function initializeOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    console.error('❌ OpenAI API key not found!');
+    console.error('');
+    console.error('📋 SETUP REQUIRED:');
+    console.error('   1. Copy .env.example to .env (in the same directory as this executable)');
+    console.error('   2. Edit .env and add your OpenAI API key');
+    console.error('   3. Save the file and restart the application');
+    console.error('');
+    console.error('📖 See API_KEY_SETUP.txt for detailed instructions');
+    console.error('🔗 Get your API key at: https://platform.openai.com/api-keys');
+    console.error('');
+    process.exit(1);
+  }
+  
+  console.log(`[🔑] OpenAI API key loaded (${apiKey.substring(0, 8)}...)`);
+  return new OpenAI({ apiKey });
+}
+
+const openai = initializeOpenAI();
 
 const rl = readline.createInterface({
 	input: process.stdin,

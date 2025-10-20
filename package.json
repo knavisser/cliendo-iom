@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "bin": "boot-all.js",
   "scripts": {
-    "build": "pkg . --output CliendoIOM.exe",
-    "build-all": "pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --output dist/CliendoIOM",
+    "prebuild": "node pre-build.js",
+    "postbuild": "node deploy-env.js",
+    "build": "npm run prebuild && pkg . --output CliendoIOM.exe",
+    "build-win": "npm run prebuild && pkg . --targets node18-win-x64 --output dist/CliendoIOM-win.exe && npm run postbuild",
+    "build-mac": "pkg . --targets node18-macos-x64 --output dist/CliendoIOM-mac && npm run postbuild",
+    "build-linux": "pkg . --targets node18-linux-x64 --output dist/CliendoIOM-linux && npm run postbuild",
+    "build-all": "npm run build-win && npm run build-mac && npm run build-linux",
     "start": "node boot-all.js"
   },
   "dependencies": {
@@ -16,7 +21,12 @@
     "pkg": "^5.8.1"
   },
   "pkg": {
-    "scripts": ["chat-and-inject.js", "inject-code.js"],
-    "assets": [".env", "node_modules/puppeteer/.local-chromium/**/*"]
+    "scripts": ["chat-and-inject.js", "inject-code.js", "pre-build.js"],
+    "assets": [
+      ".env.example",
+      "API_KEY_SETUP.txt",
+      "local-chromium/**/*"
+    ],
+    "options": ["--public-packages", "*", "--public"]
   }
 }

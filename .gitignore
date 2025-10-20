@@ -4,8 +4,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Puppeteer Chromium downloads (will be bundled in exe)
-.local-chromium/
+# Puppeteer Chromium downloads (global cache)
+# Note: local-chromium/ is intentionally NOT ignored as it contains the bundled Chromium for packaging
 
 # Environment variables
 .env

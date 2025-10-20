@@ -1,0 +1,26 @@
+# 🔑 API Key Setup Instructions
+
+## IMPORTANT: Set up your OpenAI API key
+
+This application requires an OpenAI API key to function. For security reasons, the API key is NOT included in the executable.
+
+### Option 1: Environment File (Recommended)
+1. Copy `.env.example` to `.env` in the same directory as the executable
+2. Edit `.env` and replace `your_openai_api_key_here` with your actual API key
+3. Save the file
+
+### Option 2: System Environment Variable (ASK TONY FIRST)
+Set a system environment variable:
+- Windows: `set OPENAI_API_KEY=your_key_here`
+- macOS/Linux: `export OPENAI_API_KEY=your_key_here`
+
+### Security Notes
+- Never share your API key
+- Keep your `.env` file secure
+- Consider using API key restrictions in your OpenAI account
+
+### Troubleshooting
+If you see "OPENAI_API_KEY environment variable is missing", check:
+1. The `.env` file exists in the same directory as the executable
+2. The `.env` file contains `OPENAI_API_KEY=your_actual_key`
+3. There are no extra spaces or quotes around the key

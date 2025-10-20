@@ -1,0 +1,31 @@
+{
+  "name": "cliendo-iom-assistant",
+  "version": "1.0.0",
+  "bin": "boot-all.js",
+  "scripts": {
+    "prebuild": "node pre-build.js",
+    "predeploy": "node deploy-env.js",
+    "build": "npm run prebuild && pkg . --output CliendoIOM.exe",
+    "build-win": "npm run prebuild && npm run predeploy && pkg . --targets node18-win-x64 --output dist/CliendoIOM-win.exe",
+    "build-mac": "npm run predeploy && pkg . --targets node18-macos-x64 --output dist/CliendoIOM-mac",
+    "build-linux": "npm run predeploy && pkg . --targets node18-linux-x64 --output dist/CliendoIOM-linux",
+    "build-all": "npm run build-win && npm run build-mac && npm run build-linux",
+    "start": "node boot-all.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "openai": "^5.9.0",
+    "puppeteer": "^23.6.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "scripts": ["chat-and-inject.js", "inject-code.js", "pre-build.js", "deploy-env.js"],
+    "assets": [
+      ".env",
+      "local-chromium/**/*"
+    ],
+    "options": ["--public-packages", "*", "--public"]
+  }
+}
