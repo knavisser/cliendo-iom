@@ -1,0 +1,22 @@
+{
+  "name": "cliendo-iom-assistant",
+  "version": "1.0.0",
+  "bin": "boot-all.js",
+  "scripts": {
+    "build": "pkg . --output CliendoIOM.exe",
+    "build-all": "pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --output dist/CliendoIOM",
+    "start": "node boot-all.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "openai": "^5.9.0",
+    "puppeteer": "^23.6.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "scripts": ["chat-and-inject.js", "inject-code.js"],
+    "assets": [".env", "node_modules/puppeteer/.local-chromium/**/*"]
+  }
+}
